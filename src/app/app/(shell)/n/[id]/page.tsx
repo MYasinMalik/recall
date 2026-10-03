@@ -32,6 +32,23 @@ export default function LessonOverviewPage() {
     );
   }
   if (lesson.value.status === "generating") return <NotReadyNotice id={id} />;
+  if (sections.value.length === 0 && lesson.value.lessonPending) {
+    return (
+      <div className="max-w-(--l-read)">
+        <Banner
+          tone="info"
+          title="The guided lesson is being written"
+          action={
+            <ButtonLink href={`/app/n/${id}/notes`} size="sm">
+              Read the notes
+            </ButtonLink>
+          }
+        >
+          It appears here in a moment. The notes are ready now.
+        </Banner>
+      </div>
+    );
+  }
   if (sections.value.length === 0) {
     return (
       <div className="max-w-(--l-read)">

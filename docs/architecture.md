@@ -2,6 +2,18 @@
 
 A free, open-source, local-first study app. This document is the plan the code is built against. Date: 2026-10-03.
 
+## What is built so far
+
+This document is the plan. As of 2026-10-03 the `local` mode is implemented, with these differences from the plan below:
+
+- **Database access** uses Node's built-in `node:sqlite` with plain SQL in `src/server/repo.ts`, not Drizzle or `better-sqlite3`. It needs no native build step. Migrations are SQL files in `migrations/`.
+- **API** is one validated RPC endpoint, `POST /api/rpc`, plus `POST /api/upload` and the three `/auth` routes, instead of the REST table below. Each method maps one-to-one to a function on the `DataLayer` interface and has its own Zod argument schema.
+- **Progress** reaches the browser by polling about once a second while something is being written, not by server-sent events.
+- **Structured output** is requested as JSON in the reply text and validated, with one repair attempt. Function tools are not used.
+- **The guided lesson** is written in one request after the notes finish, not section by section.
+- **Search** is a LIKE query; there is no full-text index.
+- **Not built:** `owner` and `demo` modes, link and video sources, note editing and versions, export, the PDF viewer.
+
 ## Shape of the system
 
 One codebase, three run modes, chosen by `RECALL_MODE`:

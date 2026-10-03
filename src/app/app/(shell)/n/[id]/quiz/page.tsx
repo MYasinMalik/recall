@@ -38,8 +38,8 @@ export default function QuizPage() {
                 setError(null);
                 try {
                   await data.generateQuiz(id);
-                } catch {
-                  setError("The quiz could not be made. Try again.");
+                } catch (e) {
+                  setError(e instanceof Error && e.message ? e.message : "The quiz could not be made. Try again.");
                 } finally {
                   setBusy(false);
                 }

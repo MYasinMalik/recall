@@ -32,8 +32,8 @@ function Setup({ lessonId, replace }: { lessonId: string; replace?: boolean }) {
         setError(null);
         try {
           await data.generateCards(lessonId, count, instructions);
-        } catch {
-          setError("The cards could not be made. Try again.");
+        } catch (e) {
+          setError(e instanceof Error && e.message ? e.message : "The cards could not be made. Try again.");
         } finally {
           setBusy(false);
         }

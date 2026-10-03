@@ -4,8 +4,6 @@
 -- Access rule: every query goes through the data layer, which takes the session's
 -- user_id and filters on it. No table is read without an owner check.
 
-pragma journal_mode = wal;
-pragma foreign_keys = on;
 
 -- ---------------------------------------------------------------- identity
 
@@ -137,7 +135,6 @@ create table note_versions (
 );
 create index note_versions_lesson on note_versions (lesson_id, created_at desc);
 
--- Search runs as a LIKE query over lessons.title and notes.content_md; a full-text index can be added later.
 
 -- ---------------------------------------------------------------- guided lesson
 
@@ -293,3 +290,11 @@ create table jobs (
 );
 create index jobs_lesson on jobs (lesson_id, created_at desc);
 create unique index jobs_one_live on jobs (dedupe_key) where status in ('queued','running');
+
+-- ---------------------------------------------------------------- install
+
+-- Per-install values: the host id sent to OpenAI and the client id it issued.
+create table meta (
+  key   text primary key,
+  value text not null
+);

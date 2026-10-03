@@ -54,7 +54,7 @@ export default function NotesPage() {
                 </Button>
               }
             >
-              What was written so far is kept below.
+              {n.error ?? "What was written so far is kept below."}
             </Banner>
           </div>
         ) : null}

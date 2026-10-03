@@ -27,8 +27,8 @@ export function ChatPanel({ lessonId, scope }: { lessonId: string; scope: ChatSc
     setError(null);
     try {
       await data.sendMessage(lessonId, scope, text);
-    } catch {
-      setError("The reply could not be written. Send your question again.");
+    } catch (e) {
+      setError(e instanceof Error && e.message ? e.message : "The reply could not be written. Send your question again.");
     }
   };
 

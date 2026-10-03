@@ -42,8 +42,8 @@ export default function LandingPage() {
           ChatGPT plan you already have.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/app" variant="primary" size="lg">
-            Try the sample lessons
+          <ButtonLink href="/signin" variant="primary" size="lg">
+            Get started
           </ButtonLink>
         </div>
       </section>

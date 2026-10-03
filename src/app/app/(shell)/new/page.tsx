@@ -56,10 +56,10 @@ export default function NewLessonPage() {
     setBusy(true);
     setError(null);
     try {
-      const lesson = await data.createLesson({ kind, value, folderId: folderId || null, focus });
+      const lesson = await data.createLesson({ kind, value, folderId: folderId || null, focus, file: file ?? undefined });
       router.push(`/app/n/${lesson.id}/notes`);
-    } catch {
-      setError("The lesson could not be created. Try again.");
+    } catch (e) {
+      setError(e instanceof Error && e.message ? e.message : "The lesson could not be created. Try again.");
       setBusy(false);
     }
   };

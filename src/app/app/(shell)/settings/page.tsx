@@ -5,7 +5,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/overlay";
 import { Badge, Banner, Skeleton } from "@/components/ui/surface";
 import { cn } from "@/lib/cn";
-import { data } from "@/lib/data";
+import { data, setUsingSamples } from "@/lib/data";
 import { useData } from "@/lib/use-data";
 
 type Theme = "system" | "light" | "dark";
@@ -52,16 +52,38 @@ export default function SettingsPage() {
               <p className="font-medium break-words">{me.value.name}</p>
               <p className="text-sm break-words text-muted">{me.value.email}</p>
             </div>
-            {me.value.planUsage ? (
-              <Badge tone="success">ChatGPT plan connected</Badge>
+            {!me.value.signedIn ? (
+              <>
+                <Banner tone="info" title="ChatGPT is not connected">
+                  You are looking at sample content. Signing in lets lessons be written from your own material.
+                </Banner>
+                <div>
+                  <ButtonLink href="/signin">Sign in</ButtonLink>
+                </div>
+              </>
             ) : (
-              <Banner tone="info" title="ChatGPT is not connected">
-                You are looking at sample content. Signing in lets lessons be written from your own material.
-              </Banner>
+              <>
+                {me.value.planUsage ? (
+                  <div>
+                    <Badge tone="success">ChatGPT plan connected</Badge>
+                  </div>
+                ) : (
+                  <Banner tone="warning" title="Plan usage was not granted">
+                    Lessons cannot be written until you sign in again and allow Recall to use your ChatGPT plan.
+                  </Banner>
+                )}
+                <div>
+                  <Button
+                    onClick={async () => {
+                      await data.signOut();
+                      window.location.assign("/signin");
+                    }}
+                  >
+                    Sign out and disconnect
+                  </Button>
+                </div>
+              </>
             )}
-            <div>
-              <ButtonLink href="/signin">Sign in</ButtonLink>
-            </div>
           </>
         ) : (
           <Skeleton className="h-10 w-3/5" />
@@ -77,14 +99,21 @@ export default function SettingsPage() {
             <select
               id="model"
               className="h-10 max-w-full rounded-md border border-border-input bg-surface px-3 text-base"
-              defaultValue={models.value[0]}
+              defaultValue={me.value?.model ?? models.value[0]?.slug}
+              onChange={(e) => data.setModel(e.target.value)}
             >
               {models.value.map((m) => (
-                <option key={m}>{m}</option>
+                <option key={m.slug} value={m.slug}>
+                  {m.name}
+                </option>
               ))}
             </select>
             <p className="text-sm text-muted">The list comes from the models your ChatGPT plan offers.</p>
           </>
+        ) : models.error ? (
+          <Banner tone="warning" title="The model list could not be loaded">
+            {models.error}
+          </Banner>
         ) : (
           <Skeleton className="h-10 w-3/5" />
         )}
@@ -117,13 +146,13 @@ export default function SettingsPage() {
 
       <Row title="Data">
         <p className="text-sm text-muted">
-          Everything is stored on this computer. Resetting removes your lessons and restores the samples.
+          Everything is stored on this computer. Resetting removes every lesson and folder.
         </p>
         <div>
           <Dialog
             trigger={<Button variant="danger">Reset all data</Button>}
             title="Reset all data?"
-            description="Every lesson, card, quiz answer and chat on this computer is removed and the sample lessons are restored. This cannot be undone."
+            description="Every lesson, folder, card, quiz answer and chat is removed from this computer, along with uploaded files. This cannot be undone."
             footer={
               <Button variant="danger" onClick={() => data.resetAll().then(() => window.location.assign("/app"))}>
                 Reset everything
