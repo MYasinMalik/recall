@@ -9,7 +9,7 @@ Turn a lecture into something you can study from. Recall is a free, open-source 
 This is an early build.
 
 - **Working:** the full interface, and a local backend behind it. PDFs and pasted text are read on your machine, lessons are stored in a SQLite file, and notes, the guided lesson, flashcards, quizzes and chat replies are written by a model through your own ChatGPT plan.
-- **Tested against a stand-in, not yet against OpenAI:** the backend's automated checks run against a local stand-in for the OpenAI API. Sign in with ChatGPT follows OpenAI's published flow for open-source apps, but has not yet been exercised with a real account. Expect rough edges there.
+- **Tested end to end:** sign-in, PDF upload, notes, the guided lesson, flashcards, a quiz and chat have all been run with a real ChatGPT account on a 23-page lecture. Notes start appearing in under ten seconds; a full set of notes takes a minute or two, as do the guided lesson and a quiz. Token refresh, scanned PDFs and very long documents have not been exercised yet.
 - **Not built yet:** editing notes, export, link and video sources, a PDF viewer, and running a private copy on your own server.
 - **No account needed to look around:** choose "Use the sample lessons" on the sign-in page to explore with built-in content.
 

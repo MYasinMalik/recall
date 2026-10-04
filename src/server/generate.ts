@@ -151,6 +151,7 @@ async function writeSections(userId: string, lessonId: string, notes: string) {
         "Last section: kind final, with three to five questions and no text blocks.",
         "Mix mcq and fill questions. Wrong options must be plausible. Explanations say why the right answer is right in one or two sentences.",
         "Rewrite the ideas in a conversational voice; do not paste the notes.",
+        "Section titles are short plain noun phrases. Do not number them and do not add encouragement.",
       ].join("\n"),
       prompt: `<source>\n${notes.slice(0, 60_000)}\n</source>`,
     });
