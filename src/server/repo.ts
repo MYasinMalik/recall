@@ -22,6 +22,9 @@ import { UPLOAD_DIR } from "./env";
 
 export class NotFound extends Error {}
 
+/** The most source text sent to the model in one request, in characters. */
+export const SOURCE_LIMIT = 120_000;
+
 const kindToDb: Record<SourceKind, string> = { file: "pdf", text: "text", link: "web", topic: "topic" };
 const kindFromDb: Record<string, SourceKind> = { pdf: "file", text: "text", web: "link", youtube: "link", topic: "topic" };
 
@@ -152,7 +155,13 @@ export function getNote(userId: string, lessonId: string): Note {
     lessonId,
   );
   const generating = lesson?.status === "generating";
+  const sourceLength =
+    get<{ n: number | null }>(
+      "select sum(length(c.text)) as n from source_chunks c join sources s on s.id = c.source_id where s.lesson_id = ?",
+      lessonId,
+    )?.n ?? 0;
   return {
+    truncated: sourceLength > SOURCE_LIMIT,
     markdown: note?.content_md ?? "",
     generating,
     progress: generating ? (job?.progress ?? 0) : lesson?.status === "ready" ? 100 : 0,

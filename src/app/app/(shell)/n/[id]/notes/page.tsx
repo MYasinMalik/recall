@@ -58,6 +58,14 @@ export default function NotesPage() {
             </Banner>
           </div>
         ) : null}
+        {n.truncated ? (
+          <div className="mb-6">
+            <Banner tone="warning" title="This source is longer than one lesson can cover">
+              These notes cover only the first part of it. Split the document and make a lesson from each
+              part to cover the rest.
+            </Banner>
+          </div>
+        ) : null}
         {n.markdown ? <Markdown>{n.markdown}</Markdown> : null}
         {n.generating ? <StreamCaret /> : null}
         {!n.markdown && !n.generating && !failed ? (
