@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { currentUser } from "@/server/auth";
 import { SignInPanel } from "./panel";
 
 export const metadata = { title: "Sign in · Recall" };
@@ -11,5 +13,7 @@ const messages: Record<string, string> = {
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
+  // Already signed in on this computer: go straight to the library.
+  if (!error && (await currentUser())) redirect("/app");
   return <SignInPanel error={error ? (messages[error] ?? messages.failed) : undefined} />;
 }

@@ -1,5 +1,7 @@
 import { BookOpen, Layers, ListChecks, MessageSquare } from "lucide-react";
+import { redirect } from "next/navigation";
 import { ButtonLink } from "@/components/ui/button";
+import { currentUser } from "@/server/auth";
 
 const features = [
   {
@@ -24,7 +26,10 @@ const features = [
   },
 ];
 
-export default function LandingPage() {
+export const dynamic = "force-dynamic";
+
+export default async function LandingPage() {
+  if (await currentUser()) redirect("/app");
   return (
     <main className="mx-auto max-w-(--l-workspace) px-4 md:px-8">
       <header className="flex h-(--l-header) items-center justify-between">

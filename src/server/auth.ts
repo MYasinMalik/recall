@@ -209,7 +209,9 @@ export const sessionCookieOptions = {
   // The app is served over http on 127.0.0.1, where browsers do not accept Secure cookies.
   secure: false,
   path: "/",
-  maxAge: SESSION_MS / 1000,
+  // The cookie outlives the session row on purpose: the row's expiry slides forward with use,
+  // so the server decides when a session ends, not the cookie.
+  maxAge: 180 * 24 * 60 * 60,
 };
 
 export interface SessionUser {
@@ -221,13 +223,18 @@ export interface SessionUser {
 export async function currentUser(): Promise<SessionUser | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  const row = get<SessionUser>(
-    `select u.id, u.name, u.email from sessions s join users u on u.id = s.user_id
+  const row = get<SessionUser & { expiresAt: number }>(
+    `select u.id, u.name, u.email, s.expires_at as expiresAt from sessions s join users u on u.id = s.user_id
      where s.id = ? and s.expires_at > ?`,
     sha256(token),
     now(),
   );
-  return row ?? null;
+  if (!row) return null;
+  // Staying signed in: each day of use pushes the expiry back out to the full window.
+  if (row.expiresAt - now() < SESSION_MS - 24 * 60 * 60 * 1000) {
+    run("update sessions set expires_at = ? where id = ?", now() + SESSION_MS, sha256(token));
+  }
+  return { id: row.id, name: row.name, email: row.email };
 }
 
 export async function signOut(forget: boolean) {
