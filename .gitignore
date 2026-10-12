@@ -8,7 +8,7 @@ next-env.d.ts
 !.env.example
 
 # local data
-data/
+/data/
 *.db
 *.db-wal
 *.db-shm
