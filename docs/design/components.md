@@ -1,6 +1,8 @@
 # Recall components
 
-The system is "paper and ink": warm paper background, ink text, one deep green accent, serif headings (Newsreader), sans interface text (Inter), mono labels (IBM Plex Mono), hairline borders instead of heavy shadows, small radii. Icons are Lucide (ISC licence). All three fonts are under the SIL Open Font Licence. No mascot, no illustrations.
+The system is quiet and minimal: a cool neutral canvas, near-black text, one teal accent, a single sans typeface (Plus Jakarta Sans) with IBM Plex Mono for keys and counters, soft rounded surfaces and light shadows. Icons are Lucide (ISC licence). Both fonts are under the SIL Open Font Licence. The logo is an open ring with a dot: a loop coming back to where it started.
+
+Motion uses three durations (140, 220 and 380 ms) and one deceleration curve. Entrances fade up, exits are shorter than entrances, everything moves by transform or opacity, and all of it is switched off under `prefers-reduced-motion`.
 
 Tokens: `tokens.json` is the source. `npm run tokens` writes `tokens.css` and `tailwind-theme.css` into `src/styles/`. Components use role classes (`bg-surface`, `text-muted`, `border-border-input`), never raw hex. Light and dark are both defined; dark follows the system unless `data-theme` is set on `<html>`.
 
@@ -110,7 +112,7 @@ ChoiceOption
 
 Flashcard
   states    prompt side, answer side, hover, focus-visible
-  tokens    bg surface, border border, radius lg; prompt in serif xl, answer in read
+  tokens    bg surface, border border, radius lg; prompt in bold xl, answer in read; turns over in 3D
   a11y      a button with aria-pressed; label says which side is showing; Space or Enter turns it
   used on   flashcards
 

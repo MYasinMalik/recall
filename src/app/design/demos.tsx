@@ -41,7 +41,7 @@ export function QuestionDemo() {
   };
   return (
     <div className="flex flex-col gap-3">
-      <p className="font-serif text-lg">What makes a rule a function?</p>
+      <p className="text-lg">What makes a rule a function?</p>
       <div role="radiogroup" aria-label="Answer options" className="flex flex-col gap-2">
         {options.map((o, i) => (
           <ChoiceOption

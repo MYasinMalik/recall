@@ -15,11 +15,11 @@ export default function SourcePage() {
   if (source.value === undefined || !lesson.value) return <Skeleton className="h-64 w-full" />;
 
   return (
-    <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-10">
       <section aria-label="Source text" className="min-w-0 flex-1">
         <p className="eyebrow">Text read from {lesson.value.sourceName}</p>
         {source.value.trim() ? (
-          <pre className="mt-3 max-h-[70dvh] overflow-auto rounded-lg border border-border bg-surface p-6 font-sans text-base leading-6 whitespace-pre-wrap">
+          <pre className="mt-3 max-h-[calc(100dvh-14rem)] min-h-64 overflow-auto rounded-lg border border-border bg-surface p-5 font-sans text-base leading-7 whitespace-pre-wrap sm:p-6">
             {source.value}
           </pre>
         ) : (
@@ -30,7 +30,7 @@ export default function SourcePage() {
           </div>
         )}
       </section>
-      <aside className="w-full shrink-0 rounded-lg border border-border bg-surface lg:sticky lg:top-6 lg:h-[calc(100dvh-3rem)] lg:w-90">
+      <aside className="h-[60dvh] w-full shrink-0 rounded-lg border border-border bg-surface lg:sticky lg:top-6 lg:h-[calc(100dvh-3rem)] lg:w-90">
         <ChatPanel lessonId={id} scope="source" />
       </aside>
     </div>

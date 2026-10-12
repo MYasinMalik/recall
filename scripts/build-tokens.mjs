@@ -13,13 +13,19 @@ const vars = (obj, indent = "  ") =>
     .map(([k, v]) => `${indent}--c-${k}: ${v};`)
     .join("\n");
 
+const { dark: darkShadow, ...lightShadow } = tokens.shadow;
+const darkShadowVars = (indent = "  ") =>
+  Object.entries(darkShadow)
+    .map(([k, v]) => `${indent}--sh-${k}: ${v};`)
+    .join("\n");
+
 const px = (n) => `${n}px`;
 const rem = (n) => `${n / 16}rem`;
 
 const staticVars = [
   ...Object.entries(tokens.font).map(([k, v]) => `  --f-${k}: ${v};`),
   ...Object.entries(tokens.radius).map(([k, v]) => `  --r-${k}: ${px(v)};`),
-  ...Object.entries(tokens.shadow).map(([k, v]) => `  --sh-${k}: ${v};`),
+  ...Object.entries(lightShadow).map(([k, v]) => `  --sh-${k}: ${v};`),
   ...Object.entries(tokens.motion).map(([k, v]) => `  --m-${k}: ${v};`),
   `  --l-sidebar: ${px(tokens.layout.sidebar)};`,
   `  --l-header: ${px(tokens.layout.header)};`,
@@ -38,16 +44,14 @@ ${staticVars}
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 ${vars(dark, "    ")}
-    --sh-card: 0 1px 0 rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.4);
-    --sh-pop: 0 16px 40px rgba(0,0,0,.6);
+${darkShadowVars("    ")}
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 ${vars(dark)}
-  --sh-card: 0 1px 0 rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.4);
-  --sh-pop: 0 16px 40px rgba(0,0,0,.6);
+${darkShadowVars()}
 }
 `;
 
@@ -61,9 +65,9 @@ ${Object.keys(light)
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  --font-serif: var(--f-serif);
-  --font-sans: var(--f-sans);
-  --font-mono: var(--f-mono);
+${Object.keys(tokens.font)
+  .map((k) => `  --font-${k}: var(--f-${k});`)
+  .join("\n")}
 
 ${Object.entries(tokens.type)
   .map(
@@ -78,8 +82,9 @@ ${Object.keys(tokens.radius)
   .join("\n")}
 
   --shadow-*: initial;
-  --shadow-card: var(--sh-card);
-  --shadow-pop: var(--sh-pop);
+${Object.keys(lightShadow)
+  .map((k) => `  --shadow-${k}: var(--sh-${k});`)
+  .join("\n")}
 
   --breakpoint-*: initial;
 ${Object.entries(tokens.layout.breakpoints)
@@ -87,6 +92,8 @@ ${Object.entries(tokens.layout.breakpoints)
   .join("\n")}
 
   --ease-out: var(--m-ease);
+  --ease-in: var(--m-ease-in);
+  --ease-spring: var(--m-spring);
 }
 `;
 

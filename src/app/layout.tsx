@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Inter, Newsreader } from "next/font/google";
+import { IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader" });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
@@ -18,11 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${newsreader.variable} ${plexMono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${jakarta.variable} ${plexMono.variable}`} suppressHydrationWarning>
       <head>
         <script
           // Applies a saved theme before first paint so the page does not flash.

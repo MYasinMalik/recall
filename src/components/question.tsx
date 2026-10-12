@@ -49,6 +49,7 @@ export function Question({
     if (!active || answered) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
       const n = Number(e.key);
       if (n >= 1 && n <= options.length) setPicked(n - 1);
       if (e.key === "Enter" && picked !== null) {
@@ -70,11 +71,11 @@ export function Question({
 
   return (
     <div className="flex flex-col gap-4">
-      <Markdown className="prose-compact font-medium">{prompt}</Markdown>
+      <Markdown className="prose-compact text-lg! leading-7! font-semibold">{prompt}</Markdown>
       <div
         role="radiogroup"
         aria-label="Answer options"
-        className={cn(variant === "fill" ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2")}
+        className={cn(variant === "fill" ? "grid gap-2 sm:grid-cols-2" : "flex flex-col gap-2")}
       >
         {options.map((option, i) => (
           <ChoiceOption
@@ -98,11 +99,13 @@ export function Question({
           <Markdown className="prose-compact">{response.explanation}</Markdown>
         </Banner>
       ) : (
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Button variant="primary" disabled={picked === null} loading={busy} onClick={check}>
             Check <Kbd>Enter</Kbd>
           </Button>
-          <span className="text-sm text-muted">Press 1–{options.length} to choose.</span>
+          <span className="text-sm text-muted">
+            Press <Kbd>1</Kbd>–<Kbd>{options.length}</Kbd> to choose
+          </span>
         </div>
       )}
     </div>

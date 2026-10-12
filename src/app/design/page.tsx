@@ -35,7 +35,7 @@ export default function DesignPage() {
           <p className="eyebrow">Recall</p>
           <h1 className="mt-1 text-display">Design system</h1>
           <p className="mt-2 max-w-[56ch] text-muted">
-            Paper and ink. Serif headings, hairline borders, one green accent. Every primitive the
+            A quiet canvas, one typeface, one teal accent. Every primitive the
             screens are built from, in every state.
           </p>
         </div>
@@ -55,9 +55,9 @@ export default function DesignPage() {
 
       <Section title="Type">
         <div className="flex flex-col gap-3">
-          <p className="font-serif text-display">Display 40 · Lesson titles</p>
-          <p className="font-serif text-xl">Heading 28 · Section titles</p>
-          <p className="font-serif text-lg">Subheading 20 · Card titles</p>
+          <p className="text-display">Display 44 · Page titles</p>
+          <p className="text-xl">Heading 28 · Section titles</p>
+          <p className="text-lg">Subheading 20 · Card titles</p>
           <p className="max-w-[60ch] text-read">
             Reading 18. A function assigns every input exactly one output. Lesson text is set at
             this size on a 680px column so a paragraph reads like a page, not a dashboard.

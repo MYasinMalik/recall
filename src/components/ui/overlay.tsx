@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { IconButton } from "./button";
 
-/** Underlined tabs that switch between the views of one lesson. */
+/** Pill tabs that switch between panels in place. */
 export function Tabs({
   tabs,
   defaultValue,
@@ -16,26 +16,24 @@ export function Tabs({
 }) {
   return (
     <RTabs.Root defaultValue={defaultValue ?? tabs[0]?.value}>
-      <RTabs.List className="flex gap-6 overflow-x-auto border-b border-border" aria-label="Lesson views">
+      <RTabs.List className="flex gap-1 overflow-x-auto rounded-md bg-sunken p-1" aria-label="Views">
         {tabs.map((t) => (
           <RTabs.Trigger
             key={t.value}
             value={t.value}
             className={cn(
-              "-mb-px flex h-11 shrink-0 items-center gap-2 border-b-2 border-transparent text-sm text-muted",
-              "transition-colors duration-[var(--m-fast)] hover:text-text",
-              "data-[state=active]:border-accent data-[state=active]:font-semibold data-[state=active]:text-text",
+              "flex h-9 shrink-0 items-center gap-2 rounded-sm px-3 text-sm font-medium text-muted",
+              "transition duration-[var(--m-fast)] hover:text-text",
+              "data-[state=active]:bg-surface data-[state=active]:text-text data-[state=active]:shadow-card",
             )}
           >
             {t.label}
-            {t.pending ? (
-              <span className="size-1.5 rounded-pill bg-border-input" title="Not generated yet" />
-            ) : null}
+            {t.pending ? <span className="size-1.5 rounded-pill bg-border-input" title="Not made yet" /> : null}
           </RTabs.Trigger>
         ))}
       </RTabs.List>
       {tabs.map((t) => (
-        <RTabs.Content key={t.value} value={t.value} className="pt-6">
+        <RTabs.Content key={t.value} value={t.value} className="anim-fade pt-6">
           {t.content}
         </RTabs.Content>
       ))}
@@ -60,27 +58,29 @@ export function Dialog({
     <RDialog.Root>
       <RDialog.Trigger asChild>{trigger}</RDialog.Trigger>
       <RDialog.Portal>
-        <RDialog.Overlay className="fixed inset-0 bg-text/40" />
-        <RDialog.Content
-          className={cn(
-            "fixed top-1/2 left-1/2 w-[min(480px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2",
-            "rounded-lg border border-border bg-surface p-6 shadow-pop",
-          )}
-        >
-          <div className="flex items-start justify-between gap-4">
-            <RDialog.Title className="font-serif text-lg">{title}</RDialog.Title>
-            <RDialog.Close asChild>
-              <IconButton label="Close" className="-mt-2 -mr-2">
-                <X className="size-5" aria-hidden />
-              </IconButton>
-            </RDialog.Close>
-          </div>
-          {description ? (
-            <RDialog.Description className="mt-1 text-sm text-muted">{description}</RDialog.Description>
-          ) : null}
-          {children ? <div className="mt-4">{children}</div> : null}
-          {footer ? <div className="mt-6 flex justify-end gap-2">{footer}</div> : null}
-        </RDialog.Content>
+        <RDialog.Overlay className="overlay-scrim fixed inset-0 z-40 bg-text/45 backdrop-blur-[2px]" />
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+          <RDialog.Content
+            className={cn(
+              "overlay-dialog pointer-events-auto w-full max-w-120",
+              "rounded-lg border border-border bg-surface p-6 shadow-pop",
+            )}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <RDialog.Title className="text-lg">{title}</RDialog.Title>
+              <RDialog.Close asChild>
+                <IconButton label="Close" className="-mt-2 -mr-2">
+                  <X className="size-5" aria-hidden />
+                </IconButton>
+              </RDialog.Close>
+            </div>
+            {description ? (
+              <RDialog.Description className="mt-1 text-sm text-muted">{description}</RDialog.Description>
+            ) : null}
+            {children ? <div className="mt-4">{children}</div> : null}
+            {footer ? <div className="mt-6 flex justify-end gap-2">{footer}</div> : null}
+          </RDialog.Content>
+        </div>
       </RDialog.Portal>
     </RDialog.Root>
   );
@@ -88,7 +88,7 @@ export function Dialog({
 
 export function ToastRegion({ children }: { children: ReactNode }) {
   return (
-    <RToast.Provider swipeDirection="right" duration={5000}>
+    <RToast.Provider swipeDirection="right" duration={4000}>
       {children}
       <RToast.Viewport className="fixed right-4 bottom-4 z-50 flex w-[min(360px,calc(100vw-32px))] flex-col gap-2" />
     </RToast.Provider>
@@ -111,15 +111,15 @@ export function Toast({
       open={open}
       onOpenChange={onOpenChange}
       className={cn(
-        "flex items-center justify-between gap-3 rounded-md border bg-surface px-4 py-3 shadow-pop",
+        "overlay-toast flex items-center justify-between gap-3 rounded-md border bg-surface py-2 pr-2 pl-4 shadow-pop",
         tone === "danger" ? "border-danger" : "border-border",
       )}
     >
-      <RToast.Title className={cn("text-sm font-medium", tone === "danger" && "text-danger")}>
+      <RToast.Title className={cn("text-sm font-semibold", tone === "danger" && "text-danger")}>
         {title}
       </RToast.Title>
       <RToast.Close asChild>
-        <IconButton label="Dismiss" className="size-8">
+        <IconButton label="Dismiss" className="size-9">
           <X className="size-4" aria-hidden />
         </IconButton>
       </RToast.Close>
