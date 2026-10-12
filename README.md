@@ -1,6 +1,6 @@
 # Recall
 
-Turn a lecture into something you can study from. Recall is a free, open-source study app that runs on your own computer: give it a PDF, some pasted text, a link or just a topic, and it produces notes, a guided lesson with questions, flashcards and quizzes, with a tutor chat that stays on that material.
+Turn a lecture into something you can study from. Recall is a free, open-source study app that runs on your own computer: give it a PDF, PowerPoint slides, some pasted text or just a topic, and it produces notes, a guided lesson with questions, flashcards and quizzes, with a tutor chat that stays on that material.
 
 ![Notes view](docs/screenshots/notes.png)
 
@@ -8,7 +8,7 @@ Turn a lecture into something you can study from. Recall is a free, open-source 
 
 This is an early build.
 
-- **Working:** the full interface, and a local backend behind it. PDFs and pasted text are read on your machine, lessons are stored in a SQLite file, and notes, the guided lesson, flashcards, quizzes and chat replies are written by a model through your own ChatGPT plan.
+- **Working:** the full interface, and a local backend behind it. PDFs, PowerPoint files and pasted text are read on your machine, lessons are stored in a SQLite file, and notes, the guided lesson, flashcards, quizzes and chat replies are written by a model through your own ChatGPT plan.
 - **Tested end to end:** sign-in, PDF upload, notes, the guided lesson, flashcards, a quiz and chat have all been run with a real ChatGPT account on a 23-page lecture. Notes start appearing in under ten seconds; a full set of notes takes a minute or two, as do the guided lesson and a quiz. Token refresh works. Scanned, password-protected and over-length PDFs are refused with a clear message. A source longer than about 120,000 characters is cut to its first part, and the notes say so.
 - **Not built yet:** editing notes, export, link and video sources, a PDF viewer, and running a private copy on your own server.
 - **No account needed to look around:** choose "Use the sample lessons" on the sign-in page to explore with built-in content.

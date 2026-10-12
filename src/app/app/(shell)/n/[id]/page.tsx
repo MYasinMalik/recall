@@ -3,7 +3,7 @@
 import { ArrowRight, Check, GraduationCap, Lock } from "lucide-react";
 import Link from "next/link";
 import { NotReadyNotice, useLessonId } from "@/components/lesson-frame";
-import { ButtonLink } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Banner, EmptyState, ProgressRing, Skeleton } from "@/components/ui/surface";
 import { cn } from "@/lib/cn";
 import { data, type SectionKind } from "@/lib/data";
@@ -53,12 +53,19 @@ export default function LessonOverviewPage() {
     return (
       <div className="max-w-(--l-read)">
         <EmptyState
-          title="No guided lesson for this one"
+          title="The guided lesson was not finished"
           icon={<GraduationCap className="size-6" aria-hidden />}
-          action={<ButtonLink href={`/app/n/${id}/notes`}>Read the notes</ButtonLink>}
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button variant="primary" onClick={() => data.writeGuidedLesson(id)}>
+                Write the guided lesson
+              </Button>
+              <ButtonLink href={`/app/n/${id}/notes`}>Read the notes</ButtonLink>
+            </div>
+          }
         >
-          This lesson only has notes. A guided lesson with questions is made when a lesson is created from a
-          source.
+          The notes are ready, but writing the step-by-step lesson with questions stopped part way. It takes a
+          couple of minutes to write again.
         </EmptyState>
       </div>
     );

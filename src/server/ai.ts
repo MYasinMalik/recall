@@ -85,9 +85,12 @@ async function chosenModel(userId: string): Promise<string> {
   return models.some((m) => m.slug === saved) ? (saved as string) : models[0].slug;
 }
 
+/** One piece of a message that mixes text and pictures. A picture is a data: URL. */
+export type Part = { type: "input_text"; text: string } | { type: "input_image"; image_url: string };
+
 export interface Turn {
   role: "user" | "assistant";
-  content: string;
+  content: string | Part[];
 }
 
 /** Streams one response. Resolves with the full text only after the stream reports completion. */
@@ -158,8 +161,10 @@ export async function streamText(opts: {
 }
 
 function extractJson(text: string): unknown {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const candidate = fenced ? fenced[1] : text;
+  // Only a fence wrapped around the whole answer is stripped. The JSON itself may contain code fences
+  // inside its strings, for example a lesson block that shows SQL.
+  const trimmed = text.trim();
+  const candidate = trimmed.startsWith("```") ? trimmed.replace(/^```[a-z]*\s*/i, "").replace(/```$/, "") : trimmed;
   const start = candidate.indexOf("{");
   const end = candidate.lastIndexOf("}");
   if (start < 0 || end <= start) throw new Error("no JSON object found");
@@ -174,12 +179,16 @@ export async function generateJson<T>(opts: {
   userId: string;
   instructions: string;
   prompt: string;
+  /** Pictures and their captions, sent ahead of the prompt. */
+  parts?: Part[];
   schema: z.ZodType<T>;
   shape: string;
   signal?: AbortSignal;
 }): Promise<T> {
   const instructions = `${opts.instructions}\n\nReply with one JSON object and nothing else. It must match this shape exactly:\n${opts.shape}`;
-  const input: Turn[] = [{ role: "user", content: opts.prompt }];
+  const input: Turn[] = [
+    { role: "user", content: opts.parts ? [...opts.parts, { type: "input_text", text: opts.prompt }] : opts.prompt },
+  ];
   for (let attempt = 0; attempt < 2; attempt++) {
     const text = await streamText({ userId: opts.userId, instructions, input, signal: opts.signal });
     let problem: string;
@@ -196,5 +205,6 @@ export async function generateJson<T>(opts: {
     input.push({ role: "assistant", content: text });
     input.push({ role: "user", content: `That did not match the required shape (${problem}). Send the corrected JSON object only.` });
   }
+  console.error("model output rejected twice:", input.at(-1)?.content.toString().slice(0, 300));
   throw new AiError("bad_output", "The model's answer did not match the expected format");
 }

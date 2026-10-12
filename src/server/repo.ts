@@ -162,12 +162,38 @@ export function getNote(userId: string, lessonId: string): Note {
     )?.n ?? 0;
   return {
     truncated: sourceLength > SOURCE_LIMIT,
+    warning: get<{ error: string | null }>("select error from sources where lesson_id = ?", lessonId)?.error ?? undefined,
     markdown: note?.content_md ?? "",
     generating,
     progress: generating ? (job?.progress ?? 0) : lesson?.status === "ready" ? 100 : 0,
     label: generating ? (job?.step_label ?? "") : "",
     error: lesson?.status === "failed" ? (job?.step_label ?? undefined) : undefined,
   };
+}
+
+/** The uploaded file behind a lesson, and whether its pictures have already been read into the source text. */
+export function getSourceFile(userId: string, lessonId: string, picturesLabel: string) {
+  const row = get<{ id: string; file_path: string | null }>(
+    "select id, file_path from sources where lesson_id = ? and user_id = ?",
+    lessonId, userId,
+  );
+  if (!row?.file_path) return null;
+  const picturesRead = !!get("select 1 from source_chunks where source_id = ? and instr(text, ?) > 0 limit 1", row.id, picturesLabel);
+  return { id: row.id, filePath: row.file_path, picturesRead };
+}
+
+/** Swaps a source's text for a fuller reading of the same file. `warning` is shown above the notes. */
+export function replaceChunks(sourceId: string, chunks: { text: string; pageFrom?: number; pageTo?: number }[], warning: string | null) {
+  transaction(() => {
+    run("delete from source_chunks where source_id = ?", sourceId);
+    chunks.forEach((c, i) =>
+      run(
+        "insert into source_chunks (id, source_id, seq, page_from, page_to, text, token_estimate) values (?, ?, ?, ?, ?, ?, ?)",
+        uid(), sourceId, i, c.pageFrom ?? null, c.pageTo ?? null, c.text, Math.ceil(c.text.length / 4),
+      ),
+    );
+    run("update sources set error = ?, updated_at = ? where id = ?", warning, now(), sourceId);
+  });
 }
 
 export function getSourceText(userId: string, lessonId: string, maxChars = Infinity): string {

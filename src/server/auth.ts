@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { randomToken, seal, sha256, unseal } from "./crypto";
-import { get, getMeta, now, run, setMeta, transaction, uid } from "./db";
+import { all, get, getMeta, now, run, setMeta, transaction, uid } from "./db";
 import { ORIGIN } from "./env";
 
 const ISSUER = "https://auth.openai.com";
@@ -25,6 +25,8 @@ interface Pending {
   verifier: string;
   nonce: string;
   createdAt: number;
+  /** Registering afresh, for a ChatGPT account outside the workspace this install was first tied to. */
+  fresh: boolean;
 }
 const globals = globalThis as unknown as {
   __recallPending?: Map<string, Pending>;
@@ -52,14 +54,15 @@ function hostId(): string {
 }
 
 /** Builds the URL to send the browser to. State, nonce and the PKCE verifier are kept for ten minutes. */
-export function beginSignIn(): string {
+export function beginSignIn(fresh = false): string {
   for (const [state, p] of pending) if (now() - p.createdAt > PENDING_MS) pending.delete(state);
   const state = randomToken();
   const verifier = randomToken(48);
   const nonce = randomToken();
-  pending.set(state, { verifier, nonce, createdAt: now() });
+  pending.set(state, { verifier, nonce, createdAt: now(), fresh });
 
-  const clientId = getMeta("client_id");
+  // OpenAI ties a registration to the workspace of the account that made it, so another account needs its own.
+  const clientId = fresh ? undefined : getMeta("client_id");
   const url = new URL(AUTHORIZE_URL);
   const params: Record<string, string> = {
     client_id: clientId ?? DYNAMIC_CLIENT,
@@ -124,8 +127,26 @@ function saveCredentials(userId: string, clientId: string, tokens: TokenResponse
   );
 }
 
-/** Handles the redirect back from OpenAI. Returns a new session token to set as a cookie. */
-export async function finishSignIn(query: URLSearchParams): Promise<string> {
+/**
+ * Hands everything one account owns to another. Used when the person at this computer signs in with a
+ * different ChatGPT account, so their lessons follow them instead of being stranded under the old one.
+ */
+function moveLibrary(fromUserId: string, toUserId: string) {
+  const tables = all<{ name: string }>(
+    `select m.name from sqlite_master m join pragma_table_info(m.name) c on c.name = 'user_id'
+     where m.type = 'table' and m.name not in ('credentials', 'sessions')`,
+  );
+  // "or ignore" leaves a row behind where the new account already has its own, such as settings.
+  for (const { name } of tables) run(`update or ignore ${name} set user_id = ? where user_id = ?`, toUserId, fromUserId);
+  run("delete from credentials where user_id = ?", fromUserId);
+  run("delete from sessions where user_id = ?", fromUserId);
+}
+
+/**
+ * Handles the redirect back from OpenAI. Returns a new session token to set as a cookie.
+ * `previousUserId` is whoever was already signed in on this browser, if anyone.
+ */
+export async function finishSignIn(query: URLSearchParams, previousUserId?: string): Promise<string> {
   const error = query.get("error");
   if (error) throw new AuthError(error, query.get("error_description") ?? "Sign-in was not completed");
 
@@ -141,7 +162,7 @@ export async function finishSignIn(query: URLSearchParams): Promise<string> {
   // A first sign-in registers this install; the issued client id arrives on the callback.
   const issued = query.get("client_id");
   if (issued && issued !== DYNAMIC_CLIENT) setMeta("client_id", issued);
-  const clientId = getMeta("client_id");
+  const clientId = attempt.fresh ? (issued ?? undefined) : getMeta("client_id");
   if (!clientId) throw new AuthError("missing_client_id", "OpenAI did not issue a client id for this install");
 
   const tokens = await tokenRequest({
@@ -192,6 +213,15 @@ export async function finishSignIn(query: URLSearchParams): Promise<string> {
       );
     }
     saveCredentials(userId, clientId, tokens);
+    if (previousUserId && previousUserId !== userId) moveLibrary(previousUserId, userId);
+    // This install has one owner. An account that can no longer sign in (no ChatGPT connection left)
+    // would strand its lessons, so whoever signs in next takes them over.
+    for (const orphan of all<{ id: string }>(
+      "select id from users where id <> ? and id not in (select user_id from credentials)",
+      userId,
+    )) {
+      moveLibrary(orphan.id, userId);
+    }
     run(
       "insert into sessions (id, user_id, expires_at, created_at) values (?, ?, ?, ?)",
       sha256(sessionToken),

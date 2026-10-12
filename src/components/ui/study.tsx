@@ -238,8 +238,8 @@ export function Composer({
 /* ---------------------------------------------------------------- dropzone */
 
 export function Dropzone({
-  accept = ".pdf",
-  hint = "PDF up to 50 MB",
+  accept = ".pdf,.pptx",
+  hint = "PDF or PowerPoint (.pptx), up to 50 MB",
   error,
   onFile,
 }: {

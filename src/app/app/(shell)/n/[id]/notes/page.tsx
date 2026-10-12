@@ -119,6 +119,23 @@ export default function NotesPage() {
             </Banner>
           </div>
         ) : null}
+        {n.warning ? (
+          <div className="mb-6">
+            <Banner
+              tone="warning"
+              title="Some of this source could not be read"
+              action={
+                !n.generating ? (
+                  <Button size="sm" onClick={() => data.retryGeneration(id)}>
+                    Try again
+                  </Button>
+                ) : undefined
+              }
+            >
+              {n.warning}
+            </Banner>
+          </div>
+        ) : null}
         {n.truncated ? (
           <div className="mb-6">
             <Banner tone="warning" title="This source is longer than one lesson can cover">

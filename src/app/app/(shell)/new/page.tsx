@@ -12,7 +12,7 @@ import { data, type SourceKind } from "@/lib/data";
 import { useData } from "@/lib/use-data";
 
 const kinds: { kind: SourceKind; label: string; detail: string; icon: typeof FileText }[] = [
-  { kind: "file", label: "PDF", detail: "Slides or a handout", icon: FileText },
+  { kind: "file", label: "File", detail: "PDF or PowerPoint", icon: FileText },
   { kind: "text", label: "Text", detail: "Paste your notes", icon: Type },
   { kind: "topic", label: "Topic", detail: "Start from a title", icon: Lightbulb },
 ];
@@ -38,9 +38,13 @@ export default function NewLessonPage() {
 
   const pickFile = (f: File) => {
     setKind("file");
-    if (!/\.pdf$/i.test(f.name)) {
+    if (!/\.(pdf|pptx)$/i.test(f.name)) {
       setFile(null);
-      setFileError("Only PDF files are supported for now.");
+      setFileError(
+        /\.ppt$/i.test(f.name)
+          ? "Old .ppt files are not supported. Save it as .pptx or PDF in PowerPoint first."
+          : "Only PDF and PowerPoint (.pptx) files are supported.",
+      );
     } else if (f.size > MAX_BYTES) {
       setFile(null);
       setFileError("That file is over 50 MB. Split it or paste the text instead.");
@@ -78,7 +82,7 @@ export default function NewLessonPage() {
   return (
     <div
       className="anim-rise mx-auto max-w-(--l-read) px-4 py-8 md:py-10"
-      // A PDF dropped anywhere on the page is picked up, whichever source type is showing.
+      // A file dropped anywhere on the page is picked up, whichever source type is showing.
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault();

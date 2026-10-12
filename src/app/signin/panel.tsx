@@ -49,6 +49,16 @@ export function SignInPanel({ error }: { error?: string }) {
           >
             Use the sample lessons
           </Button>
+          <button
+            type="button"
+            onClick={() => {
+              setUsingSamples(false);
+              window.location.assign("/auth/start?switch=1");
+            }}
+            className="mt-1 self-center rounded-md px-2 py-1 text-sm font-medium text-muted underline underline-offset-4 transition-colors duration-[var(--m-fast)] hover:text-text"
+          >
+            Use a different ChatGPT account
+          </button>
         </div>
         <ul className="flex flex-col gap-2 border-t border-border pt-5 text-sm text-muted">
           {facts.map((f) => (

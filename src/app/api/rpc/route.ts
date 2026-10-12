@@ -66,6 +66,8 @@ const methods: Record<string, { schema: z.ZodTuple; handler: Handler }> = {
     generate.startLessonGeneration(u, lessonId);
   }),
 
+  writeGuidedLesson: method(z.tuple([id]), (u, [lessonId]) => generate.startSections(u, lessonId)),
+
   getNote: method(z.tuple([id]), (u, [lessonId]) => repo.getNote(u, lessonId)),
   getSourceText: method(z.tuple([id]), (u, [lessonId]) => repo.getSourceText(u, lessonId, 400_000)),
 
@@ -138,7 +140,7 @@ export async function POST(request: Request) {
     if (error instanceof repo.NotFound) return json({ error: error.message }, 404);
     if (error instanceof AuthError || error instanceof AiError) {
       const described = describeAiError(error);
-      return json({ error: described.message, code: described.code }, described.code === "signed_out" ? 401 : 502);
+      return json({ error: described.message, code: described.code }, described.code === "signed_out" ? 409 : 502);
     }
     // Generation helpers already turn model failures into readable messages.
     const message = error instanceof Error && error.message.length < 300 ? error.message : "Something went wrong";

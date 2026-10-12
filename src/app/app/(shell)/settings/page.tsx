@@ -79,11 +79,20 @@ export default function SettingsPage() {
               ) : (
                 <>
                   {!me.value.planUsage ? (
-                    <Banner tone="warning" title="Plan usage was not granted">
-                      Lessons cannot be written until you sign in again and allow Recall to use your ChatGPT plan.
+                    <Banner tone="warning" title="ChatGPT is not connected">
+                      The connection expired or plan usage was not granted. Your lessons are safe, but nothing new
+                      can be written until you reconnect.
                     </Banner>
                   ) : null}
-                  <div>
+                  <div className="flex flex-wrap gap-2">
+                    {!me.value.planUsage ? (
+                      <Button variant="primary" onClick={() => window.location.assign("/auth/start")}>
+                        Reconnect ChatGPT
+                      </Button>
+                    ) : null}
+                    <Button onClick={() => window.location.assign("/auth/start?switch=1")}>
+                      Use a different account
+                    </Button>
                     <Button
                       onClick={async () => {
                         await data.signOut();
